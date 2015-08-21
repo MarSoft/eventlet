@@ -28,7 +28,8 @@ class Popen(subprocess_orig.Popen):
             for attr in "stdin", "stdout", "stderr":
                 pipe = getattr(self, attr)
                 if pipe is not None and not type(pipe) == greenio.GreenPipe:
-                    wrapped_pipe = greenio.GreenPipe(pipe, pipe.mode, bufsize)
+                    mode = getattr(pipe, 'mode') or pipe.buffer.mode # as some pipe types don't have mode field
+                    wrapped_pipe = greenio.GreenPipe(pipe, mode, bufsize)
                     setattr(self, attr, wrapped_pipe)
         __init__.__doc__ = subprocess_orig.Popen.__init__.__doc__
 
